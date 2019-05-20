@@ -69,7 +69,7 @@ proj_geom.DetectorRowCount = detector_sz(1);
 proj_geom.DetectorColCount = detector_sz(2);
 proj_geom.Vectors          = importdata([data_dir 'scan_geom_corrected.geom']);
 % sub-sample in angle 
-proj_geom.Vectors          = proj_geom.Vectors(1:angluar_sub_sampling:n_pro, :);
+proj_geom.Vectors          = proj_geom.Vectors(1:angluar_sub_sampling:1200, :);
 
 %% read in and normalize all data
 
