@@ -3,7 +3,10 @@ This is a collection of Python and MATLAB scripts for loading, pre-processing an
 reconstructing X-ray CT projection data of 42 walnuts as described in
 
 Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten,
-Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning",  [arXiv:1905.04787](https://arxiv.org/abs/1905.04787) (2019)
+Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, ["A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning", Sci Data 6, 215 (2019)](https://doi.org/10.1038/s41597-019-0235-y) or [arXiv:1905.04787](https://arxiv.org/abs/1905.04787) (2019)
+
+Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten, Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning",  or arXiv:1905.04787 (2019)
+
 
 * `FDKReconstruction.m` and `FDKReconstruction.py` compute FDK reconstructions for data from a single source-detector orbit, which leads to high cone angle artifacts.
 * `GroundTruthReconstruction.m` and `GroundTruthReconstruction.py` compute an iterative reconstructions using the data from all three source-detector orbits, which leads to a reconstruction free of high cone angle artifacts.
