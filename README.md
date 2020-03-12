@@ -2,8 +2,7 @@
 This is a collection of Python and MATLAB scripts for loading, pre-processing and 
 reconstructing X-ray CT projection data of 42 walnuts as described in
 
-Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten,
-Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, ["A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning", Sci Data 6, 215 (2019)](https://doi.org/10.1038/s41597-019-0235-y) or [arXiv:1905.04787](https://arxiv.org/abs/1905.04787) (2019)
+[Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten, Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning", Sci Data 6, 215 (2019)](https://doi.org/10.1038/s41597-019-0235-y) or [arXiv:1905.04787](https://arxiv.org/abs/1905.04787) (2019)
 
 Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten, Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg, "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning",  or arXiv:1905.04787 (2019)
 
