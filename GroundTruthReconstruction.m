@@ -62,9 +62,6 @@ vol_geom.option.WindowMinZ = vol_geom.option.WindowMinZ / voxel_per_mm;
 
 % set up projection geometry
 detector_sz = [972, 768]; % detector size
-% number of projections, there are in fact 1201, but the last and first one
-% come from the same angle
-n_pro       = 3*length(1:angluar_sub_sampling:1200); 
 
 proj_geom                  = [];
 proj_geom.type             = 'cone_vec';
@@ -75,10 +72,14 @@ proj_geom.DetectorColCount = detector_sz(2);
 proj_geom.Vectors = [];
 for orbit=1:3
     vectors_orbit = importdata([data_dir 'tubeV' int2str(orbit) '/scan_geom_corrected.geom']);
-    % sub-sample in angle
+    % sub-sample in angle, note that the total number of projection is in fact 1201, but the 
+    % first and last projection come from the same angle and are omitted here
     vectors_orbit          = vectors_orbit(1:angluar_sub_sampling:1200, :);
     proj_geom.Vectors = [proj_geom.Vectors; vectors_orbit];
 end
+
+n_pro      = size(proj_geom.Vectors, 1); 
+
 
 %% read in and normalize all data
 
@@ -93,8 +94,9 @@ for orbit=1:3
     
     % get all projections for this orbit
     pro_files_orbit = dir([data_dir 'tubeV' int2str(orbit) '/scan_*.tif']);
-    % sub-sample in angle
-    pro_files_orbit = pro_files_orbit(1:angluar_sub_sampling:1200);
+    % we need to read in the projection in reverse order due to the portrait
+    % mode acquision 
+    pro_files_orbit = pro_files_orbit(1200:-angluar_sub_sampling:1);
     
     % read in dark and flat field
     dark_field  = trafo(double(imread([data_dir 'tubeV' int2str(orbit) '/di000000.tif'])));
@@ -111,9 +113,6 @@ for orbit=1:3
         % flat and dark field correction 
         data_orbit(i_pro,:, :) = (pro - dark_field)./ (flat_field - dark_field);
     end
-    % flip the angles (this is also due to the way the projection
-    % geometry was computed)
-    data_orbit = flip(data_orbit, 1);
     
     % merge with other orbits
     data = cat(1, data, data_orbit);

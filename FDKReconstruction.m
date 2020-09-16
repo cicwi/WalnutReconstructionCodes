@@ -9,7 +9,7 @@
 %
 % author: Felix Lucka
 % date:        18.03.2019
-% last update: 11.04.2019
+% last update: 16.09.2020
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -59,24 +59,25 @@ vol_geom.option.WindowMinZ = vol_geom.option.WindowMinZ / voxel_per_mm;
 
 % set up projection geometry
 detector_sz = [972, 768]; % detector size
-% number of projections, there are in fact 1201, but the last and first one
-% come from the same angle
-n_pro       = length(1:angluar_sub_sampling:1200); 
 
 proj_geom                  = [];
 proj_geom.type             = 'cone_vec';
 proj_geom.DetectorRowCount = detector_sz(1);
 proj_geom.DetectorColCount = detector_sz(2);
 proj_geom.Vectors          = importdata([data_dir 'scan_geom_corrected.geom']);
-% sub-sample in angle 
+% sub-sample in angle, note that the total number of projection is in fact 1201, but the 
+% first and last projection come from the same angle and are omitted here
 proj_geom.Vectors          = proj_geom.Vectors(1:angluar_sub_sampling:1200, :);
+
+n_pro      = size(proj_geom.Vectors, 1); 
 
 %% read in and normalize all data
 
 % get all projections
 pro_files = dir([data_dir, 'scan_*.tif']);
-% sub-sample in angle 
-pro_files = pro_files(1:angluar_sub_sampling:1200);
+% we need to read in the projection in reverse order due to the portrait
+% mode acquision 
+pro_files = pro_files(1200:-angluar_sub_sampling:1);
 
 % transformation to apply to each image, we need to get the image from 
 % the way the scanner reads it out into to way described in the projection
@@ -98,9 +99,6 @@ for i_pro = 1:n_pro
     % flat and dark field correction
     data(i_pro,:, :) = (pro - dark_field)./ (flat_field - dark_field);
 end
-% flip the angles (this is also due to the way the projection
-% geometry was computed)
-data = flip(data, 1);
 
 % reset values smaller or equal to 0
 data(data <= 0) = min(data(data > 0));

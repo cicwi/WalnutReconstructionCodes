@@ -34,10 +34,10 @@ walnut_id = 1
 orbits_to_recon = [1,2,3]
 # define a sub-sampling factor in angular direction
 # (all reference reconstructions are computed with full angular resolution)
-angluar_sub_sampling = 1
+angluar_sub_sampling = 10
 # select of voxels per mm in one direction (higher = larger res)
 # (all reference reconstructions are computed with 10)
-voxel_per_mm = 10
+voxel_per_mm = 5
 
 # we enter here some intrinsic details of the dataset needed for our reconstruction scripts
 # set the variable "data_path" to the path where the dataset is stored on your own workstation
@@ -55,10 +55,7 @@ print('load and pre-process data', flush=True)
 
 # we add the info about walnut
 data_path_full = os.path.join(data_path, 'Walnut{}'.format(walnut_id), 'Projections')
-# projection index
-# there are in fact 1201, but the last and first one come from the same angle
-projs_idx      = range(0,1200, angluar_sub_sampling)
-nb_projs_orbit = len(projs_idx)
+
 projs_name = 'scan_{:06}.tif'
 dark_name = 'di000000.tif'
 flat_name = ['io000000.tif', 'io000001.tif']
@@ -70,7 +67,10 @@ projs_cols = 768
 projs = np.zeros((projs_rows, 0, projs_cols), dtype=np.float32)
 
 # And create the numpy array receiving the motor positions read from the geometry file
-vecs = np.zeros((0, 12), dtype=np.float32)
+vecs           = np.zeros((0, 12), dtype=np.float32)
+nb_projs_orbit = len(range(0,1200, angluar_sub_sampling))
+# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision 
+projs_idx      = range(1199,-1, -angluar_sub_sampling)
 
 # transformation to apply to each image, we need to get the image from
 # the way the scanner reads it out into to way described in the projection
@@ -84,8 +84,9 @@ for orbit_id in orbits_to_recon:
 
     # load the numpy array describing the scan geometry of the orbit from file
     vecs_orbit = np.loadtxt(os.path.join(orbit_data_path, vecs_name))
-    # get the positions we need and write into vecs
-    vecs = np.concatenate((vecs, vecs_orbit[projs_idx]), axis=0)
+    
+    # get the positions we need; there are in fact 1201, but the last and first one come from the same angle
+    vecs = np.concatenate((vecs, vecs_orbit[range(0,1200, angluar_sub_sampling)]), axis=0)
 
     # load flat-field and dark-fields
     # there are two flat-field images (taken before and after acquisition), we simply average them
@@ -97,7 +98,7 @@ for orbit_id in orbits_to_recon:
 
     # load projection data directly on the big projection array
     projs_orbit = np.zeros((nb_projs_orbit, projs_rows, projs_cols), dtype=np.float32)
-    for i in range(len(projs_idx)):
+    for i in range(nb_projs_orbit):
         projs_orbit[i] = trafo(imageio.imread(os.path.join(orbit_data_path, projs_name.format(projs_idx[i]))))
 
     # subtract the dark field, devide by the flat field, and take the negative log to linearize the data according to the Beer-Lambert law
@@ -108,10 +109,7 @@ for orbit_id in orbits_to_recon:
     np.log(projs_orbit, out=projs_orbit)
     np.negative(projs_orbit, out=projs_orbit)
 
-    # we need to apply some more transformations to the projections to get them from
-    # the way the scanner reads it out into to way described in the projection
-    # geometry and used by ASTRA
-    projs_orbit = projs_orbit[::-1,...]
+    # permute data to ASTRA convention
     projs_orbit = np.transpose(projs_orbit, (1,0,2))
 
     # attach to projs
@@ -201,8 +199,12 @@ if not os.path.exists(recon_path_full):
     os.makedirs(recon_path_full)
 
 # Save every slice in  the volume as a separate tiff file
+orbit_str = 'pos'
+for orbit_id in orbits_to_recon:
+    orbit_str = orbit_str + '{}'.format(orbit_id)
+    
 for i in range(vol_sz[0]):
-    slice_path = os.path.join(recon_path_full, 'full_AGD_{}_ass{}_vmm{}_{:06}.tiff'.format(nb_iter,
+    slice_path = os.path.join(recon_path_full, 'nnls_' + orbit_str + '_iter{}_ass{}_vmm{}_{:06}.tiff'.format(nb_iter,
                                   angluar_sub_sampling, voxel_per_mm, i))
     imageio.imwrite(slice_path, vol_rec[i,...])
 

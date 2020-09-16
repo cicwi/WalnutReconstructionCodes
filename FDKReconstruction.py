@@ -30,20 +30,20 @@ import matplotlib.pyplot as plt
 walnut_id = 1
 # select also the orbit you want to reconstruct the data from:
 # 1 higher source position, 2 middle source position, 3 lower source position
-orbit_id = 1
+orbit_id = 2
 # define a sub-sampling factor in angular direction
 # (all reference reconstructions are computed with full angular resolution)
-angluar_sub_sampling = 1
+angluar_sub_sampling = 10
 # select of voxels per mm in one direction (higher = larger res)
 # (all reference reconstructions are computed with 10)
-voxel_per_mm = 10
+voxel_per_mm = 5
 
 # we enter here some intrinsic details of the dataset needed for our reconstruction scripts
 # set the variable "data_path" to the path where the dataset is stored on your own workstation
 data_path = '~/Walnuts/'
 # set the variable "recon_path" to the path where you would like to store the
 # reconstructions you compute
-recon_path = '~/WalnutsOwnReconstructions/'
+recon_path = '/ufs/felix/WalnutsOwnReconstructions/'
 
 
 
@@ -54,9 +54,6 @@ print('load data', flush=True)
 
 # we add the info about walnut and orbit ID
 data_path_full = os.path.join(data_path, 'Walnut{}'.format(walnut_id), 'Projections', 'tubeV{}'.format(orbit_id))
-# projection index
-# there are in fact 1201, but the last and first one come from the same angle
-projs_idx = range(0,1200, angluar_sub_sampling)
 projs_name = 'scan_{:06}.tif'
 dark_name = 'di000000.tif'
 flat_name = ['io000000.tif', 'io000001.tif']
@@ -64,13 +61,18 @@ vecs_name = 'scan_geom_corrected.geom'
 projs_rows = 972
 projs_cols = 768
 
-# create the numpy array which will receive projection data from tiff files
-projs = np.zeros((len(projs_idx), projs_rows, projs_cols), dtype=np.float32)
 
 # load the numpy array describing the scan geometry from file
 vecs = np.loadtxt(os.path.join(data_path_full, vecs_name))
-# get the positions we need
-vecs = vecs[projs_idx]
+# get the positions we need; there are in fact 1201, but the last and first one come from the same angle
+vecs       = vecs[range(0,1200, angluar_sub_sampling)]
+# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision 
+projs_idx  = range(1199,-1, -angluar_sub_sampling)
+
+n_pro = vecs.shape[0]
+
+# create the numpy array which will receive projection data from tiff files
+projs = np.zeros((n_pro, projs_rows, projs_cols), dtype=np.float32)
 
 # transformation to apply to each image, we need to get the image from
 # the way the scanner reads it out into to way described in the projection
@@ -87,7 +89,7 @@ for i, fn in enumerate(flat_name):
 flat =  np.mean(flat,axis=0)
 
 # load projection data
-for i in range(len(projs_idx)):
+for i in range(n_pro):
     projs[i] = trafo(imageio.imread(os.path.join(data_path_full, projs_name.format(projs_idx[i]))))
 
 print(np.round_(time.time() - t, 3), 'sec elapsed')
@@ -103,10 +105,7 @@ projs -= dark
 projs /= (flat - dark)
 np.log(projs, out=projs)
 np.negative(projs, out=projs)
-# we need to apply some transformations to the projections to get them from
-# the way the scanner reads it out into to way described in the projection
-# geometry and used by ASTRA
-projs = projs[::-1,...]
+# permute data to ASTRA convention
 projs = np.transpose(projs, (1,0,2))
 projs = np.ascontiguousarray(projs)
 print(np.round_(time.time() - t, 3), 'sec elapsed')
