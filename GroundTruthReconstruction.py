@@ -37,7 +37,7 @@ orbits_to_recon = [1,2,3]
 angluar_sub_sampling = 10
 # select of voxels per mm in one direction (higher = larger res)
 # (all reference reconstructions are computed with 10)
-voxel_per_mm = 5
+voxel_per_mm = 10
 
 # we enter here some intrinsic details of the dataset needed for our reconstruction scripts
 # set the variable "data_path" to the path where the dataset is stored on your own workstation
@@ -69,8 +69,8 @@ projs = np.zeros((projs_rows, 0, projs_cols), dtype=np.float32)
 # And create the numpy array receiving the motor positions read from the geometry file
 vecs           = np.zeros((0, 12), dtype=np.float32)
 nb_projs_orbit = len(range(0,1200, angluar_sub_sampling))
-# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision 
-projs_idx      = range(1199,-1, -angluar_sub_sampling)
+# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision
+projs_idx      = range(1200,0, -angluar_sub_sampling)
 
 # transformation to apply to each image, we need to get the image from
 # the way the scanner reads it out into to way described in the projection
@@ -84,7 +84,7 @@ for orbit_id in orbits_to_recon:
 
     # load the numpy array describing the scan geometry of the orbit from file
     vecs_orbit = np.loadtxt(os.path.join(orbit_data_path, vecs_name))
-    
+
     # get the positions we need; there are in fact 1201, but the last and first one come from the same angle
     vecs = np.concatenate((vecs, vecs_orbit[range(0,1200, angluar_sub_sampling)]), axis=0)
 
@@ -202,7 +202,7 @@ if not os.path.exists(recon_path_full):
 orbit_str = 'pos'
 for orbit_id in orbits_to_recon:
     orbit_str = orbit_str + '{}'.format(orbit_id)
-    
+
 for i in range(vol_sz[0]):
     slice_path = os.path.join(recon_path_full, 'nnls_' + orbit_str + '_iter{}_ass{}_vmm{}_{:06}.tiff'.format(nb_iter,
                                   angluar_sub_sampling, voxel_per_mm, i))

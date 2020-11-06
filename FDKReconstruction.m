@@ -1,15 +1,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This matlab script computes an FDK reconstruction for one of the data sets 
-% described in 
-% "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning" by 
-% Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten, 
+% This matlab script computes an FDK reconstruction for one of the data sets
+% described in
+% "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning" by
+% Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten,
 % Giulia Colacicco, Sophia Bethany Coban, Kees Joost Batenburg
 % Please note that the reconstruction shown in the paper were performed
 % using the corresponding Python code, not this matlab code!
 %
 % author: Felix Lucka
 % date:        18.03.2019
-% last update: 16.09.2020
+% last update: 06.11.2020
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -19,7 +19,7 @@ clc
 close all
 
 % add ASTRA toolbox to the matlab path
-% Note that for obtaining a comparable scaling of the image intensities 
+% Note that for obtaining a comparable scaling of the image intensities
 % between FDK and iterative reconstructions, it is required to use a
 % development version of the ASTRA toolbox more recent than 1.9.0dev!
 addpath(genpath('~/astra-toolbox/matlab'))
@@ -31,24 +31,24 @@ data_dir_root  = '~/Walnuts/';
 %% set reconstruction parameters
 
 % which walnut data should be reconstructed?
-walnut_id = 1; 
+walnut_id = 1;
 % define which source orbit data should be used (2 = middle orbit)
 orbit_id  = 2;
 % define a sub-sampling factor in angular direction
 angluar_sub_sampling = 1;
 % number of voxels per mm in one direction (higher = larger res)
-voxel_per_mm = 10;  
+voxel_per_mm = 10;
 
 %% set up scanning and volume geometry
 
 % construct path to data
 data_dir  = [data_dir_root 'Walnut' int2str(walnut_id) ...
                 '/Projections/tubeV' int2str(orbit_id) '/'];
-            
+
 % generate reconstruction geometry
 vol_sz      = (50 * voxel_per_mm + 1) * ones(1, 3);
 vol_geom    = astra_create_vol_geom(vol_sz);
-% By default, ASTRA assumes a voxel size of 1, we need to scale the 
+% By default, ASTRA assumes a voxel size of 1, we need to scale the
 % reconstruction space here by the actual voxel size
 vol_geom.option.WindowMaxX = vol_geom.option.WindowMaxX / voxel_per_mm;
 vol_geom.option.WindowMinX = vol_geom.option.WindowMinX / voxel_per_mm;
@@ -65,21 +65,21 @@ proj_geom.type             = 'cone_vec';
 proj_geom.DetectorRowCount = detector_sz(1);
 proj_geom.DetectorColCount = detector_sz(2);
 proj_geom.Vectors          = importdata([data_dir 'scan_geom_corrected.geom']);
-% sub-sample in angle, note that the total number of projection is in fact 1201, but the 
+% sub-sample in angle, note that the total number of projection is in fact 1201, but the
 % first and last projection come from the same angle and are omitted here
 proj_geom.Vectors          = proj_geom.Vectors(1:angluar_sub_sampling:1200, :);
 
-n_pro      = size(proj_geom.Vectors, 1); 
+n_pro      = size(proj_geom.Vectors, 1);
 
 %% read in and normalize all data
 
 % get all projections
 pro_files = dir([data_dir, 'scan_*.tif']);
 % we need to read in the projection in reverse order due to the portrait
-% mode acquision 
-pro_files = pro_files(1200:-angluar_sub_sampling:1);
+% mode acquision
+pro_files = pro_files(1201:-angluar_sub_sampling:2);
 
-% transformation to apply to each image, we need to get the image from 
+% transformation to apply to each image, we need to get the image from
 % the way the scanner reads it out into to way described in the projection
 % geometry
 trafo = @(x) flipud(x)';

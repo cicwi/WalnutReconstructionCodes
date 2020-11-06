@@ -33,17 +33,17 @@ walnut_id = 1
 orbit_id = 2
 # define a sub-sampling factor in angular direction
 # (all reference reconstructions are computed with full angular resolution)
-angluar_sub_sampling = 10
+angluar_sub_sampling = 1
 # select of voxels per mm in one direction (higher = larger res)
 # (all reference reconstructions are computed with 10)
-voxel_per_mm = 5
+voxel_per_mm = 10
 
 # we enter here some intrinsic details of the dataset needed for our reconstruction scripts
 # set the variable "data_path" to the path where the dataset is stored on your own workstation
 data_path = '~/Walnuts/'
 # set the variable "recon_path" to the path where you would like to store the
 # reconstructions you compute
-recon_path = '/ufs/felix/WalnutsOwnReconstructions/'
+recon_path = '/WalnutsOwnReconstructions/'
 
 
 
@@ -66,8 +66,8 @@ projs_cols = 768
 vecs = np.loadtxt(os.path.join(data_path_full, vecs_name))
 # get the positions we need; there are in fact 1201, but the last and first one come from the same angle
 vecs       = vecs[range(0,1200, angluar_sub_sampling)]
-# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision 
-projs_idx  = range(1199,-1, -angluar_sub_sampling)
+# projection file indices, we need to read in the projection in reverse order due to the portrait mode acquision
+projs_idx  = range(1200,0, -angluar_sub_sampling)
 
 n_pro = vecs.shape[0]
 
