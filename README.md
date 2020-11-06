@@ -13,7 +13,7 @@ Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten, Giulia Colacicco, Soph
 
 ## Requirements
 
-* All scripts make use of the development version (more recent than 1.9.0dev) of the [ASTRA toolbox](https://www.astra-toolbox.com/). If you are using conda, this is available through the `astra-toolbox/label/dev channel`.
+* All scripts make use of the development version (more recent than 1.9.0dev) of the [ASTRA toolbox](https://www.astra-toolbox.com/). If you are using conda, this is available through the `astra-toolbox/label/dev` channel.
 * `GroundTruthReconstruction.m` makes use of the [SPOT toolbox](http://www.cs.ubc.ca/labs/scl/spot/).
 
 ## Contributors
