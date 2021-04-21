@@ -8,7 +8,7 @@ Created on Wed Jul 25 15:38:08 2018
 henri.dersarkissian@gmail.com
 Felix.Lucka@cwi.nl
 
-This matlab script computes an iterative reconstruction for the full
+This python script computes an iterative reconstruction for the full
 data of one of the data sets described in
 "A Cone-Beam X-Ray CT Data Collection Designed for Machine Learning" by
 Henri Der Sarkissian, Felix Lucka, Maureen van Eijnatten,
